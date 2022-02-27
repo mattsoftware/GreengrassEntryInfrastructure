@@ -1,0 +1,16 @@
+{
+  "name": "lambda-UserWatch",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "aws-xray-sdk": "^2.3.6"
+  },
+  "bundledDependencies": [ "aws-xray-sdk" ],
+  "devDependencies": {
+    "aws-sdk": "^2.530.0"
+  },
+  "files": [
+    "lambda.js"
+  ]
+}

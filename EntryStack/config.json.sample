@@ -1,0 +1,12 @@
+
+{
+    "<ACCOUNTID>": {
+        "prefix": "Entry",
+        "region": "<REGION>"
+        "iotEndpoint": "<PREFIX>-ats.iot.<REGION>.amazonaws.com",
+        "coreCSR": "-----BEGIN CERTIFICATE REQUEST-----\n...\n-----END CERTIFICATE REQUEST-----",
+        "s3SyncCSR": "-----BEGIN CERTIFICATE REQUEST-----\n...\n-----END CERTIFICATE REQUEST-----",
+        "monitorCSR": "-----BEGIN CERTIFICATE REQUEST-----\n...\n-----END CERTIFICATE REQUEST-----"
+    },
+}
+
