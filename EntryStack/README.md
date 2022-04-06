@@ -1,5 +1,5 @@
 
-# Raspberry Pi
+# Raspberry Pi Install
 
 ### Create SD Image
 
@@ -101,7 +101,7 @@ shutdown now -r
 
 You can ignore python3.7 binary not being found.
 
-# Install greengrass - part 1
+## Install greengrass - part 1
 
     cd /root
     curl https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/debian_arm/amazon-ssm-agent.deb -o amazon-ssm-agent.deb
@@ -120,9 +120,16 @@ You can ignore python3.7 binary not being found.
     openssl req -new -sha256 -key s3sync.key -out s3sync.csr
     cat s3sync.csr
 
-# CDK Deploy
+## CDK Deploy
 
-First of all we need to create the key/csr for the monitor script.
+Before deploying the lambda functions will need to be built.
+
+    pushd ../lambda-UserWatch/
+    yarn install
+    ./build.sh
+    popd
+
+Then we need to create the key/csr for the monitor script.
 
     pushd monitor
     curl https://www.amazontrust.com/repository/AmazonRootCA1.pem > root.ca.pem
@@ -131,10 +138,10 @@ First of all we need to create the key/csr for the monitor script.
     cat monitor.csr
     popd
 
-Edit the config.json file and add a section for the new account.
+Edit the config.json file and add a section for the new account. The iotEndpoint can be fetched from the AWS console. (IoT Core -> Settings.) The output of cert.csr, s3sync.csr and monitor.csr goes into the config file and cdk will need to be deployed.
 
-The output of cert.csr, s3sync.csr and monitor.csr goes into the config file and cdk will need to be deployed.
-
+    yarn install
+    cdk bootstrap aws://<ACCOUNT-NUMBER>/<REGION>
     cdk deploy
 
 - Head into the AWS IoT Core console to get the certificate
@@ -156,7 +163,7 @@ The output of cert.csr, s3sync.csr and monitor.csr goes into the config file and
   - iotHost = [host from iot console settings]
   - ggHost = add the region to the endpoint
   - add runtime option…. "allowFunctionsToRunAsRoot": "yes"
-  - useSystemd = yes$a
+  - useSystemd = yes
   - caPath = change brackets to root.ca.pem
   - privateKeyPath change brackets to cert.key (2 places)
   - certificateKeyPath change brackets to cert.pem
@@ -173,7 +180,7 @@ Create an activation for ssm
 
 (the output from this will be used for the next step on the pi)
 
-# Install greengrass
+## Install greengrass
 
     amazon-ssm-agent -register -code <code from above> -id <id from above> -region <region>
     service amazon-ssm-agent start
@@ -208,7 +215,7 @@ systemctl start greengrass
 systemctl status greengrass
 ```
 
-# Deploy to the greengrass group
+## Deploy to the greengrass group
 
 - IoT Core Console
   - Greengrass
@@ -217,4 +224,19 @@ systemctl status greengrass
         - [Prefix]
           - Actions -> Deploy
           - Automatic detection
+
+# Backup / Restore
+
+## Backup an existing system
+
+    ./backup/export.sh
+    ls -lah backup/export.json
+
+## Restore a previous backup
+
+    # transform existing backup/export.json file ready for import
+    ./backup/transform_to_import_files.js
+    ls -lah backup/for_import-*.json
+    # load entries into dynamodb table
+    ./backup/import.js
 
